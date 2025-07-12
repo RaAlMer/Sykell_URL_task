@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/RaAlMer/Sykell_URL_task/backend/crawler"
 	"github.com/RaAlMer/Sykell_URL_task/backend/database"
@@ -14,6 +15,7 @@ type CreateURLRequest struct {
 	Address string `json:"address" binding:"required,url"`
 }
 
+// POST /urls
 func CreateURL(c *gin.Context) {
 	var req CreateURLRequest
 
@@ -66,4 +68,49 @@ func CreateURL(c *gin.Context) {
 	}(url.ID, url.Address)
 
 	c.JSON(http.StatusCreated, url)
+}
+
+// GET /urls
+func ListURLs(c *gin.Context) {
+	// Default pagination
+	page := c.DefaultQuery("page", "1")
+	limit := c.DefaultQuery("limit", "10")
+	sortBy := c.DefaultQuery("sort_by", "created_at")
+	order := c.DefaultQuery("order", "desc")
+	status := c.Query("status")
+
+	pageInt, _ := strconv.Atoi(page)
+	limitInt, _ := strconv.Atoi(limit)
+	offset := (pageInt - 1) * limitInt
+
+	var urls []models.URL
+	query := database.DB.Model(&models.URL{})
+
+	if status != "" {
+		query = query.Where("status = ?", status)
+	}
+
+	// Count for pagination
+	var total int64
+	query.Count(&total)
+
+	// Apply sorting and limit
+	if order != "asc" && order != "desc" {
+		order = "desc"
+	}
+	query = query.Order(sortBy + " " + order).Limit(limitInt).Offset(offset)
+
+	// Fetch records
+	if err := query.Find(&urls).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve URLs"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":       urls,
+		"total":      total,
+		"page":       pageInt,
+		"limit":      limitInt,
+		"totalPages": int((total + int64(limitInt) - 1) / int64(limitInt)),
+	})
 }

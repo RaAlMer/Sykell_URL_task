@@ -31,6 +31,7 @@ func main() {
 
 	r.POST("/urls", api.CreateURL)
 	r.GET("/urls", api.ListURLs)
+	r.GET("/urls/:id", api.GetURLByID)
 
 	fmt.Println("Server running on port", port)
 	r.Run(":" + port)

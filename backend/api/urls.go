@@ -114,3 +114,16 @@ func ListURLs(c *gin.Context) {
 		"totalPages": int((total + int64(limitInt) - 1) / int64(limitInt)),
 	})
 }
+
+// GET /urls/:id
+func GetURLByID(c *gin.Context) {
+	id := c.Param("id")
+
+	var url models.URL
+	if err := database.DB.First(&url, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "URL not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, url)
+}

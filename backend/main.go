@@ -1,31 +1,36 @@
 package main
 
 import (
-    "fmt"
-    "os"
+	"fmt"
+	"os"
 
-    "github.com/gin-gonic/gin"
-    "github.com/joho/godotenv"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+
+	"github.com/RaAlMer/Sykell_URL_task/backend/api"
+	"github.com/RaAlMer/Sykell_URL_task/backend/database"
 )
 
 func main() {
-    // Load .env file
-    err := godotenv.Load()
-    if err != nil {
-        fmt.Println("Error loading .env file")
-    }
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("Error loading .env file")
+	}
 
-    port := os.Getenv("PORT")
-    if port == "" {
-        port = "8080" // fallback
-    }
+	database.Connect()
 
-    r := gin.Default()
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
 
-    r.GET("/health", func(c *gin.Context) {
-        c.JSON(200, gin.H{"status": "ok"})
-    })
+	r := gin.Default()
 
-    fmt.Println("Server running on port", port)
-    r.Run(":" + port)
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "ok"})
+	})
+
+	r.POST("/urls", api.CreateURL)
+
+	fmt.Println("Server running on port", port)
+	r.Run(":" + port)
 }

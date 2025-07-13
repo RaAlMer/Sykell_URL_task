@@ -7,24 +7,11 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"golang.org/x/net/html"
+
+	"github.com/RaAlMer/Sykell_URL_task/backend/models"
 )
 
-type CrawlResult struct {
-	HTMLVersion   string
-	Title         string
-	H1Count       int
-	H2Count       int
-	H3Count       int
-	H4Count       int
-	H5Count       int
-	H6Count       int
-	InternalLinks int
-	ExternalLinks int
-	BrokenLinks   int
-	HasLoginForm  bool
-}
-
-func Crawl(targetURL string) (*CrawlResult, error) {
+func Crawl(targetURL string) (*models.CrawlResult, error) {
 	resp, err := http.Get(targetURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to GET URL: %w", err)
@@ -41,7 +28,7 @@ func Crawl(targetURL string) (*CrawlResult, error) {
 	}
 	doc := goquery.NewDocumentFromNode(rootNode)
 
-	result := &CrawlResult{
+	result := &models.CrawlResult{
 		Title:         doc.Find("title").Text(),
 		HasLoginForm:  doc.Find("form input[type='password']").Length() > 0,
 		HTMLVersion:   detectHTMLVersion(rootNode),
@@ -71,10 +58,18 @@ func Crawl(targetURL string) (*CrawlResult, error) {
 
 		checkURL := href
 		if strings.HasPrefix(href, "/") {
-			checkURL = targetURL + href
+			checkURL = strings.TrimRight(targetURL, "/") + "/" + strings.TrimLeft(href, "/")
 		}
 		if res, err := http.Head(checkURL); err != nil || res.StatusCode >= 400 {
 			result.BrokenLinks++
+			statusCode := 0
+			if res != nil {
+				statusCode = res.StatusCode
+			}
+			result.BrokenLinkDetails = append(result.BrokenLinkDetails, models.BrokenLinkDetail{
+				URL:        checkURL,
+				StatusCode: statusCode,
+			})
 		}
 	})
 

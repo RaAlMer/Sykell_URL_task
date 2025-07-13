@@ -65,6 +65,18 @@ func CreateURL(c *gin.Context) {
 			"broken_links":   result.BrokenLinks,
 			"has_login_form": result.HasLoginForm,
 		})
+
+		var brokenLinks []models.BrokenLink
+		for _, b := range result.BrokenLinkDetails {
+			brokenLinks = append(brokenLinks, models.BrokenLink{
+				URLID:      id,
+				URL:        b.URL,
+				StatusCode: b.StatusCode,
+			})
+		}
+		if len(brokenLinks) > 0 {
+			database.DB.Create(&brokenLinks)
+		}
 	}(url.ID, url.Address)
 
 	c.JSON(http.StatusCreated, url)
@@ -120,7 +132,7 @@ func GetURLByID(c *gin.Context) {
 	id := c.Param("id")
 
 	var url models.URL
-	if err := database.DB.First(&url, id).Error; err != nil {
+	if err := database.DB.Preload("BrokenLinksList").First(&url, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "URL not found"})
 		return
 	}

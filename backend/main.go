@@ -10,6 +10,7 @@ import (
 
 	"github.com/RaAlMer/Sykell_URL_task/backend/api"
 	"github.com/RaAlMer/Sykell_URL_task/backend/database"
+	"github.com/RaAlMer/Sykell_URL_task/backend/models"
 )
 
 func main() {
@@ -18,6 +19,11 @@ func main() {
 	}
 
 	database.Connect()
+
+	if err := database.DB.AutoMigrate(&models.URL{}, &models.BrokenLink{}); err != nil {
+		fmt.Println("AutoMigrate error:", err)
+		return
+	}
 
 	port := os.Getenv("PORT")
 	if port == "" {

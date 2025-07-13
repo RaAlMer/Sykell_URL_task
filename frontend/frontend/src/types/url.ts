@@ -1,5 +1,13 @@
 export type UrlStatus = 'queued' | 'running' | 'done' | 'error';
 
+export interface BrokenLink {
+  id: number;
+  url_id: number;
+  url: string;
+  status_code: number;
+  created_at: string;
+}
+
 export interface UrlItem {
   id: number;
   address: string;
@@ -16,6 +24,7 @@ export interface UrlItem {
   external_links?: number;
   broken_links?: number;
   has_login_form?: boolean;
+  broken_links_details?: BrokenLink[];
   created_at: string;
   updated_at: string;
 }

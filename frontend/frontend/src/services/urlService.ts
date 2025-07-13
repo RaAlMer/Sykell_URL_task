@@ -1,14 +1,16 @@
-import axios from "axios";
 import type { UrlItem } from "../types/url";
-
-const API_BASE = import.meta.env.VITE_GO_API_BASE;
+import httpClient from "./httpClient";
 
 export const fetchUrls = async (): Promise<UrlItem[]> => {
-  const response = await axios.get(`${API_BASE}/urls`);
-  return response.data.data; // because backend response is { data, limit, page, total }
+  const response = await httpClient.get("/urls");
+  return response.data.data;
 };
 
 export const fetchUrlById = async (id: number): Promise<UrlItem> => {
-  const response = await axios.get(`${API_BASE}/urls/${id}`);
+  const response = await httpClient.get(`/urls/${id}`);
   return response.data;
+};
+
+export const createUrl = async (address: string): Promise<void> => {
+  await httpClient.post("/urls", { address });
 };

@@ -1,7 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
-
-const API_BASE = import.meta.env.VITE_GO_API_BASE;
+import { createUrl } from "../services/urlService";
 
 export default function AddUrlForm({ onSuccess }: { onSuccess: () => void }) {
   const [url, setUrl] = useState("");
@@ -17,7 +15,7 @@ export default function AddUrlForm({ onSuccess }: { onSuccess: () => void }) {
     }
 
     try {
-      await axios.post(`${API_BASE}/urls`, { address: url });
+      await createUrl(url);
       setUrl("");
       onSuccess();
     } catch (err) {

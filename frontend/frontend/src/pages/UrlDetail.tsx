@@ -32,7 +32,7 @@ export default function UrlDetail() {
         ← Back to Dashboard
       </Link>
       <h1 className="text-2xl font-bold">Details for: {url.title || url.address}</h1>
-
+      {/* Pie Chart of Internal vs. External links */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white rounded-xl shadow p-4">
           <h2 className="text-lg font-semibold mb-2">Link Distribution</h2>
@@ -54,7 +54,7 @@ export default function UrlDetail() {
             </PieChart>
           </ResponsiveContainer>
         </div>
-
+        {/* URL General Details */}
         <div className="bg-white rounded-xl shadow p-4">
           <h2 className="text-lg font-semibold mb-2">Basic Info</h2>
           <ul className="space-y-1 text-sm">
@@ -66,8 +66,20 @@ export default function UrlDetail() {
           </ul>
         </div>
       </div>
-
-      {/* Later: List of broken links, if returned */}
+      {/* List of Broken Links with Status Code */}
+      {url.broken_links_details && url.broken_links_details.length > 0 && (
+        <div className="bg-white rounded-xl shadow p-4">
+            <h2 className="text-lg font-semibold mb-2">Broken Links</h2>
+            <ul className="space-y-1 text-sm max-h-64 overflow-y-auto">
+                {url.broken_links_details.map((link) => (
+                <li key={link.id} className="flex justify-between">
+                    <span className="truncate max-w-[75%]">{link.url}</span>
+                    <span className="text-red-500 font-mono">{link.status_code}</span>
+                </li>
+                ))}
+            </ul>
+        </div>
+      )}
     </div>
   );
 }

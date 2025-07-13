@@ -137,7 +137,6 @@ export default function UrlTable({ urls, onSelectChange }: Props) {
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-
       {/* Table */}
       <table className="w-full table-auto border text-sm">
         <thead className="bg-gray-100 text-left">
@@ -171,65 +170,65 @@ export default function UrlTable({ urls, onSelectChange }: Props) {
           <tr>
             <th></th>
             <th className="p-1 border">
-                <input
-                    type="text"
-                    placeholder="Filter title..."
-                    className="w-full border rounded px-1 py-0.5 text-xs"
-                    value={titleFilter}
-                    onChange={(e) => setTitleFilter(e.target.value)}
-                />
+              <input
+                type="text"
+                placeholder="Filter title..."
+                className="w-full border rounded px-1 py-0.5 text-xs"
+                value={titleFilter}
+                onChange={(e) => setTitleFilter(e.target.value)}
+              />
             </th>
             <th className="p-1 border">
-                <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full border rounded px-1 py-0.5 text-xs"
-                >
-                    <option value="">All</option>
-                    <option value="queued">Queued</option>
-                    <option value="running">Running</option>
-                    <option value="done">Done</option>
-                    <option value="error">Error</option>
-                </select>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full border rounded px-1 py-0.5 text-xs"
+              >
+                <option value="">All</option>
+                <option value="queued">Queued</option>
+                <option value="running">Running</option>
+                <option value="done">Done</option>
+                <option value="error">Error</option>
+              </select>
             </th>
             <th className="p-1 border text-xs text-gray-400">—</th>
             <th className="p-1 border">
             <select
-                value={internalRange}
-                onChange={(e) => setInternalRange(e.target.value)}
-                className="w-full border rounded px-1 py-0.5 text-xs"
+              value={internalRange}
+              onChange={(e) => setInternalRange(e.target.value)}
+              className="w-full border rounded px-1 py-0.5 text-xs"
             >
-                {rangeOptions.map((opt) => (
+              {rangeOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
-                    {opt.label}
+                  {opt.label}
                 </option>
-                ))}
+              ))}
             </select>
             </th>
             <th className="p-1 border">
             <select
-                value={externalRange}
-                onChange={(e) => setExternalRange(e.target.value)}
-                className="w-full border rounded px-1 py-0.5 text-xs"
+              value={externalRange}
+              onChange={(e) => setExternalRange(e.target.value)}
+              className="w-full border rounded px-1 py-0.5 text-xs"
             >
-                {rangeOptions.map((opt) => (
+              {rangeOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
-                    {opt.label}
+                  {opt.label}
                 </option>
-                ))}
+              ))}
             </select>
             </th>
             <th className="p-1 border">
             <select
-                value={brokenRange}
-                onChange={(e) => setBrokenRange(e.target.value)}
-                className="w-full border rounded px-1 py-0.5 text-xs"
+              value={brokenRange}
+              onChange={(e) => setBrokenRange(e.target.value)}
+              className="w-full border rounded px-1 py-0.5 text-xs"
             >
-                {rangeOptions.map((opt) => (
+              {rangeOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
-                    {opt.label}
+                  {opt.label}
                 </option>
-                ))}
+              ))}
             </select>
             </th>
           </tr>
@@ -258,7 +257,15 @@ export default function UrlTable({ urls, onSelectChange }: Props) {
                     onChange={() => toggleSelect(url.id)}
                   />
                 </td>
-                <td className="p-2 border">{url.title || "(No title)"}</td>
+                <td>
+                  {url.title || (
+                    <>
+                      <span className="text-muted italic">(No title)</span>
+                      <br />
+                      <span className="text-sm text-gray-500">{url.address}</span>
+                    </>
+                  )}
+                </td>
                 <td className="p-2 border capitalize">{url.status}</td>
                 <td className="p-2 border">{url.html_version || "-"}</td>
                 <td className="p-2 border">{url.internal_links ?? "-"}</td>
@@ -269,7 +276,6 @@ export default function UrlTable({ urls, onSelectChange }: Props) {
           )}
         </tbody>
       </table>
-
       {/* Pagination */}
       <div className="mt-2 flex items-center justify-between text-sm">
         <div>

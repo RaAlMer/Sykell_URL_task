@@ -58,6 +58,8 @@ func main() {
 		auth.POST("/urls", api.CreateURL)
 		auth.GET("/urls", api.ListURLs)
 		auth.GET("/urls/:id", api.GetURLByID)
+		auth.DELETE("/urls/:id", api.DeleteURL)
+		auth.POST("/urls/:id/rerun", api.RerunURL)
 	}
 
 	fmt.Println("Server running on port", port)

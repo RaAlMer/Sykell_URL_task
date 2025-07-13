@@ -14,3 +14,11 @@ export const fetchUrlById = async (id: number): Promise<UrlItem> => {
 export const createUrl = async (address: string): Promise<void> => {
   await httpClient.post("/urls", { address });
 };
+
+export const deleteUrl = async (id: number): Promise<void> => {
+  await httpClient.delete(`/urls/${id}`);
+};
+
+export const rerunUrl = async (id: number): Promise<void> => {
+  await httpClient.post(`/urls/${id}/rerun`);
+};

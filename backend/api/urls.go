@@ -139,3 +139,75 @@ func GetURLByID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, url)
 }
+
+// DELETE /urls/:id
+func DeleteURL(c *gin.Context) {
+	id := c.Param("id")
+
+	// Delete associated broken links
+	if err := database.DB.Where("url_id = ?", id).Delete(&models.BrokenLink{}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete broken links"})
+		return
+	}
+
+	// Delete the URL
+	if err := database.DB.Delete(&models.URL{}, id).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete URL"})
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
+// POST /urls/:id/rerun
+func RerunURL(c *gin.Context) {
+	id := c.Param("id")
+
+	var url models.URL
+	if err := database.DB.First(&url, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "URL not found"})
+		return
+	}
+
+	database.DB.Model(&models.URL{}).Where("id = ?", id).Update("status", "running")
+
+	go func(id uint, addr string) {
+		result, err := crawler.Crawl(addr)
+		if err != nil {
+			database.DB.Model(&models.URL{}).Where("id = ?", id).Update("status", "error")
+			return
+		}
+
+		database.DB.Model(&models.URL{}).Where("id = ?", id).Updates(map[string]interface{}{
+			"status":         "done",
+			"html_version":   result.HTMLVersion,
+			"title":          result.Title,
+			"h1_count":       result.H1Count,
+			"h2_count":       result.H2Count,
+			"h3_count":       result.H3Count,
+			"h4_count":       result.H4Count,
+			"h5_count":       result.H5Count,
+			"h6_count":       result.H6Count,
+			"internal_links": result.InternalLinks,
+			"external_links": result.ExternalLinks,
+			"broken_links":   result.BrokenLinks,
+			"has_login_form": result.HasLoginForm,
+		})
+
+		database.DB.Where("url_id = ?", id).Delete(&models.BrokenLink{})
+
+		var brokenLinks []models.BrokenLink
+		for _, b := range result.BrokenLinkDetails {
+			brokenLinks = append(brokenLinks, models.BrokenLink{
+				URLID:      id,
+				URL:        b.URL,
+				StatusCode: b.StatusCode,
+			})
+		}
+		if len(brokenLinks) > 0 {
+			database.DB.Create(&brokenLinks)
+		}
+	}(url.ID, url.Address)
+
+	c.Status(http.StatusAccepted)
+}

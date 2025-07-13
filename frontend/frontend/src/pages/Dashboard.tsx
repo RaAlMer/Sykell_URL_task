@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { UrlItem } from "../types/url";
 import { fetchUrls } from "../services/urlService";
 import AddUrlForm from "../components/AddUrlForm";
@@ -6,6 +7,7 @@ import AddUrlForm from "../components/AddUrlForm";
 export default function Dashboard() {
   const [urls, setUrls] = useState<UrlItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const loadUrls = () => {
     setLoading(true);
@@ -38,7 +40,11 @@ export default function Dashboard() {
         </thead>
         <tbody>
           {urls.map((url) => (
-            <tr key={url.id} className="border-t">
+            <tr
+              key={url.id}
+              className="border-t hover:bg-gray-100 cursor-pointer"
+              onClick={() => navigate(`/urls/${url.id}`)}
+            >
               <td className="p-2 border">{url.title || "(No title)"}</td>
               <td className="p-2 border capitalize">{url.status}</td>
               <td className="p-2 border">{url.html_version}</td>

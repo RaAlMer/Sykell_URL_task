@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 type Props = {
   urls: UrlItem[];
   onSelectChange?: (selected: number[]) => void;
+  renderStatusIndicator: (status: string) => React.ReactNode;
 };
 
 const rangeOptions = [
@@ -33,7 +34,7 @@ function inRange(value: number | undefined, range: string): boolean {
   }
 }
 
-export default function UrlTable({ urls, onSelectChange }: Props) {
+export default function UrlTable({ urls, onSelectChange, renderStatusIndicator }: Props) {
   const navigate = useNavigate();
   const selectAllRef = useRef<HTMLInputElement>(null);
   const [sortKey, setSortKey] = useState<keyof UrlItem | null>(null);
@@ -266,7 +267,19 @@ export default function UrlTable({ urls, onSelectChange }: Props) {
                     </>
                   )}
                 </td>
-                <td className="p-2 border capitalize">{url.status}</td>
+                <td className="p-2 border capitalize space-x-2">
+                  {renderStatusIndicator ? (
+                    <>
+                      {renderStatusIndicator(url.status)}
+                      <span>{url.status}</span>
+                      {url.status === "error" && (
+                        <span className="ml-2 text-red-600 font-semibold">(Error)</span>
+                      )}
+                    </>
+                  ) : (
+                    url.status
+                  )}
+                </td>
                 <td className="p-2 border">{url.html_version || "-"}</td>
                 <td className="p-2 border">{url.internal_links ?? "-"}</td>
                 <td className="p-2 border">{url.external_links ?? "-"}</td>

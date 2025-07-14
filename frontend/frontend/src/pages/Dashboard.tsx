@@ -24,7 +24,7 @@ export default function Dashboard() {
 
     const startPolling = () => {
       if (interval) return;
-      interval = setInterval(() => {
+      interval = window.setInterval(() => {
         fetchUrls().then((data) => {
           setUrls(data);
 
